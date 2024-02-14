@@ -1,0 +1,62 @@
+[
+    {
+        "tipo": "universidad",
+        "campos": {
+            "nombre": "",
+            "direccion": "",
+            "telefono": "",
+            "email": "",
+            "web": "",
+            "logo": "",
+            "estado": ""
+        }
+    },
+    {
+        "tipo": "carrera",
+        "campos": {
+            "nombre": "",
+            "descripcion": "",
+            "creditos": "",
+            "duracion": "",
+            "certificada": "",
+            "logo": "",
+            "universidad": ""
+        }
+    },
+    {
+        "tipo": "materia",
+        "campos": {
+            "nombre": "",
+            "carrera": "",
+            "codigo": "",
+            "descripcion": "",
+            "creditos": "",
+            "horas": ""
+        }
+    },
+    {
+        "tipo": "profesor",
+        "campos": {
+            "nombre": "",
+            "apellido": "",
+            "email": "",
+            "telefono": "",
+            "direccion": "",
+            "foto": "",
+            "campo": ""
+        }
+    },
+    {
+        "tipo": "alumno",
+        "campos": {
+            "nombre": "",
+            "apellido": "",
+            "email": "",
+            "telefono": "",
+            "direccion": "",
+            "grado": "",
+            "foto": "",
+            "profesor": ""
+        }
+    }
+]
