@@ -23,31 +23,35 @@ use Inertia\Inertia;
 // Route::get('/', [UserController::class, 'index'])
 //     ->name('User.index');
 
+
+
+Route::middleware('auth')->group(function () {
+    Route::inertia('/returnTable', 'IndexTable')
+        ->name('Universidad.returnTable')
+        ->middleware(['auth', 'verified']);;
+
+    Route::inertia('/returnAddForm', 'AddForm')
+        ->name('Universidad.returnAddForm');
+
+    Route::post('/renderModal', function (){
+        return Inertia::render('Modals/modal');
+    })->name('Modal.renderModal');
+
+    Route::post('/form/update/{nivel}', [FormController::class, 'update'])
+        ->name('Form.update')
+        ->where('id', '[0-9]+');
+});
+
+
+
+
 Route::get('/returnForm', [FormController::class, 'returnForm'])
     ->name('Form.returnForm')
     ->middleware(['auth', 'verified']);
 
-    Route::get('/', [FormController::class, 'returnIndex'])
-    ->name('Form.returnIndex')
-    ->middleware(['auth', 'verified']);;
 
-Route::inertia('/returnTable', 'IndexTable')
-    ->name('Universidad.returnTable')
-    ->middleware(['auth', 'verified']);;
-
-Route::inertia('/returnAddForm', 'AddForm')
-        ->name('Universidad.returnAddForm')
-        ->middleware(['auth', 'verified']);;
-
-Route::post('/renderModal', function (){
-    return Inertia::render('Modals/modal');
-})->name('Modal.renderModal');
-
-
-Route::post('/form/update', [FormController::class, 'update'])
-    ->name('Form.update')
-    ->middleware(['auth', 'verified']);
-
+Route::get('/', [FormController::class, 'returnIndex'])
+    ->name('Form.returnIndex');
 
     
     Route::get('/', function () {

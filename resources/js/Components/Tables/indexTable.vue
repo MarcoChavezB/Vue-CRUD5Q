@@ -35,14 +35,14 @@
         </div>
     </div>
     <!-- v-if="showModal" -->
-    <div v-if="showModal">
+    <!-- <div v-if="showModal">
         <ModalCompModify 
         @reload="reloadPage" 
         @close="closeModal()" 
         @save="edit()" 
         :infoEdit="inforEdit" 
         :nivel="level"/>
-    </div>
+    </div> -->
 
     <div v-if="showAdd">
         <Add
@@ -66,7 +66,7 @@ import PrimaryButton from '../PrimaryButton.vue'
 import alertAdvertencia from '../Modals/alertAdvertencia.vue'
 import rowTable from './rowTable.vue'
 import headTable from './headTable.vue'
-import ModalCompModify from '../Modals/modal.vue'
+import ModalCompModify from '../../Pages/modal.vue'
 import Add from '../Modals/modalAdd.vue'
 import alertErrorVue from '../Modals/alertError.vue';
 import alertSuccesVue from '../Modals/alertSuccess.vue'; 
@@ -102,6 +102,7 @@ export default {
         closeModal() {
             this.showModal = false
         },
+
         showMessage(text, type) {
             this.messAlert = text
             if (type === 'error') {
@@ -137,24 +138,29 @@ export default {
                 switch (this.level) {
                     case 1:
                         await this.getUniversidadById(id);
-                        this.showModal = true
+                        this.getModalModify(this.level)
+                        console.log(this.inforEdit)
+                        //this.showModal = true
                         break;
                     case 2:
                         await this.getCarrera(id);
-                        this.showModal = true
+                        this.getModalModify(this.level)
+                        //this.showModal = true
                         break;
                     case 3:
                         await this.getMateria(id);
-                        this.showModal = true
+                        this.getModalModify(this.level)
+                        //this.showModal = true
                         break;
                     case 4:
                         await this.getProfesor(id);
-                        this.showModal = true
-
+                        this.getModalModify(this.level)
+                        // this.showModal = true
                         break;
                     case 5:
                         await this.getAlumno(id);
-                        this.showModal = true
+                        this.getModalModify(this.level)
+                        // this.showModal = true
                         break;
                 }
             } else if (action && action.action === 'delete'){
@@ -197,6 +203,21 @@ export default {
             }
         },
 
+        async getModalModify(nivel){
+            try {
+                this.$inertia.visit(
+                    route('Form.update', { nivel: nivel }),
+                    {
+                        method: 'post',
+                        data: { info: this.inforEdit },
+                    }
+                );
+
+            } catch (error) {
+                console.error(error)
+            }
+        },
+
         // recargar pagina cuando se modifica 
         reloadPage({ nivel ,id }){
             switch (nivel) {
@@ -222,10 +243,12 @@ export default {
             switch (this.level) {
                 case 1:
                     this.getCarreraById(id)
+                    console.log(id)
                     this.level++
                     break;
                 case 2:
                     this.getMateriasById(id)
+                    console.log(id)
                     this.level++
                     break;
                 case 3:

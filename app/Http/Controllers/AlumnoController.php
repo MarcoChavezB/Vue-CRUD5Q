@@ -15,6 +15,7 @@ class AlumnoController extends Controller
         }, 'alumnos.profesores' => function($query) {
             $query->select('nombre');
         }])->find($id);
+
     
         $alumnos = $profesor->alumnos;
         return response()->json($alumnos);
@@ -23,9 +24,6 @@ class AlumnoController extends Controller
     public function deleteAlumno($id){
         $alumno = Alumno::find($id);
     
-        if (!$alumno) {
-            return response()->json(['message' => 'Alumno no encontrado'], 404);
-        }
         $profesorAlumno = $alumno->profesorAlumno;
         $profesorId = $profesorAlumno ? $profesorAlumno->profesor_id : null;
         $alumno->is_disabled = true;
@@ -36,6 +34,11 @@ class AlumnoController extends Controller
 
     public function getAlumno($id){
         $alumno = Alumno::select('id','nombre', 'apellido', 'email', 'telefono', 'direccion', 'grado', 'foto')->find($id);
+
+        if (!$alumno) {
+            return response()->json(['message' => 'Alumno no encontrado'], 404);
+        }
+
         return response()->json($alumno);
     }
 
@@ -90,18 +93,19 @@ class AlumnoController extends Controller
         $alumno->grado = $data['grado'] ?? $alumno->grado;
         $alumno->save();
 
-        return response()->json(['message' => 'Alumno actualizado correctamente']);
+        return response()->json(['message' => 'Alumno actualizado correctamente'], 200);
     }
 
-    public function createAlumno(Request $request){
+    public function store(Request $request){
 
         $this->validate($request, [
             'nombre' => 'required | min:3 | max:100',
             'apellido' => 'required | min:3 | max:100',
             'email' => 'required | email | unique:alumnos,email',
-            'telefono' => 'required | min:9 | max:13 | unique:alumnos,telefono',
+            'telefono' => 'required|unique:alumnos,telefono|integer|regex:/^[0-9]{9,13}$/',
             'direccion' => 'required | min:3 | max:100',
             'grado' => 'required | in:primero,segundo,tercero',
+            'foto' => 'max:999 | nullable | url',
             'matricula' => 'required | min:5 | max:100 | exists:profesores,matricula',
             'profesor' => 'required | exists:profesores,nombre',
         ], [
@@ -123,6 +127,8 @@ class AlumnoController extends Controller
             'telefono.min' => 'El telefono debe tener al menos 9 caracteres',
             'telefono.max' => 'El telefono debe tener como maximo 13 caracteres',
             'telefono.unique' => 'El telefono ya esta en uso',
+            'telefono.integer' => 'El telefono debe ser digitos',
+            'telefono.regex' => 'El telefono no es valido',
 
             'direccion.required' => 'La direccion es requerida',
             'direccion.min' => 'La direccion debe tener al menos 3 caracteres',
@@ -133,7 +139,17 @@ class AlumnoController extends Controller
 
             'profesor.required' => 'El profesor es requerido',
             'profesor.exists' => 'El profesor no existe',
+
+            'foto.max' => 'La foto debe tener como maximo 999 caracteres',
+            'foto.url' => 'La foto debe ser una url valida',
+
+            'matricula.required' => 'La matricula es requerida',
+            'matricula.min' => 'La matricula debe tener al menos 5 caracteres',
+            'matricula.max' => 'La matricula debe tener como maximo 100 caracteres',
+            'matricula.exists' => 'La matricula no existe',
+
         ]);
+
 
         $nombreProfesor = $request->input('profesor');
 

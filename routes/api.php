@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::put('/updateUniversidad', [UniversidadController::class, 'updateUniversidad'])
         ->name('Universidad.updateUniversidad');
 
-    Route::post('/createUniversidad', [UniversidadController::class, 'createUniversidad'])
+    Route::post('/createUniversidad', [UniversidadController::class, 'store'])
         ->name('Universidad.createUniversidad');
 
     Route::delete('/deleteUniversidad/{id}', [UniversidadController::class, 'deleteUniversidad'])
@@ -59,7 +59,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::put('/updateCarrera', [CarreraController::class, 'updateCarrera'])
         ->name('Carrera.updateCarrera');
 
-    Route::post('/createCarrera', [CarreraController::class, 'createCarrera'])
+    Route::post('/createCarrera', [CarreraController::class, 'store'])
         ->name('Carrera.createCarrera');
 
     Route::delete('/deleteCarrera/{id}', [CarreraController::class, 'deleteCarrera'])
@@ -67,7 +67,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         ->name('Carrera.deleteCarrera');
 
 
-
+    Route::get('/materias/index', [MateriaController::class, 'index'])
+        ->name('Materia.index');
 
     Route::get('/getMaterias/{id}', [MateriaController::class, 'getMaterias'])
         ->where('id', '[0-9]+')
@@ -89,6 +90,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
+    Route::get('/profesores/index', [ProfesorController::class, 'index'])
+        ->name('Profesor.index');
 
     Route::get('/getProfesores/{id}', [ProfesorController::class, 'getProfesores'])
         ->where('id', '[0-9]+')
@@ -101,7 +104,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::put('/updateProfesor', [ProfesorController::class, 'updateProfesor'])
         ->name('Profesor.updateProfesor');
 
-    Route::post('/createProfesor', [ProfesorController::class, 'createProfesor'])
+    Route::post('/createProfesor', [ProfesorController::class, 'store'])
         ->name('Profesor.createProfesor');
 
     Route::delete('/deleteProfesor/{id}', [ProfesorController::class, 'deleteProfesor'])
@@ -125,7 +128,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::put('/updateAlumno', [AlumnoController::class, 'updateAlumno'])
         ->name('Alumno.updateAlumno');
 
-    Route::post('/createAlumno', [AlumnoController::class, 'createAlumno'])
+    Route::post('/createAlumno', [AlumnoController::class, 'store'])
         ->name('Alumno.createAlumno');
 
     Route::delete('/deleteAlumno/{id}', [AlumnoController::class, 'deleteAlumno'])

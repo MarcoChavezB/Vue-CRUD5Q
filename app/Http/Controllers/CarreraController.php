@@ -12,11 +12,14 @@ class CarreraController extends Controller
         $carrera = Carrera::select('logo', 'nombre', 'descripcion', 'duracion', 'creditos', 'certificada', 'id')
         ->where('is_disabled', false) 
         ->where('universidad_id', $id)->get();
+
+
         return response()->json($carrera);
     }
 
     public function getCarreras($id){
         $carrera = Carrera::select('id','nombre', 'descripcion', 'duracion', 'creditos', 'certificada', 'logo')->find($id);
+
         return response()->json($carrera);
     }
 
@@ -70,7 +73,7 @@ class CarreraController extends Controller
         }
 
         if ($carrera->nombre == $data['nombre'] && $carrera->descripcion == $data['descripcion'] && $carrera->duracion == $data['duracion'] && $carrera->creditos == $data['creditos'] && $carrera->certificada == $data['certificada'] && $carrera->logo == $data['logo']) {
-            return response()->json(['message' => 'No se realizo ningun cambio']);
+            return response()->json(['message' => 'No se realizo ningun cambio'], 304);
         }
 
 
@@ -81,13 +84,13 @@ class CarreraController extends Controller
         $carrera->certificada = $data['certificada'] ?? $carrera->certificada;
         $carrera->save();
 
-        return response()->json(['message' => 'Carrera actualizada correctamente']);
+        return response()->json(['message' => 'Carrera actualizada correctamente'], 200);
     }
 
 
 
 
-    public function createCarrera(Request $request){
+    public function store(Request $request){
 
     $nombreUniversidad = $request->input('universidad');
     $universidad = Universidad::where('nombre', $nombreUniversidad)->first();
@@ -98,6 +101,7 @@ class CarreraController extends Controller
         'creditos' => 'required|integer|between:100,500',
         'duracion' => 'required|integer|between:30,50',
         'certificada' => 'required | in:0,1',
+        'logo' => 'max:999 | nullable | url',
         'universidad' => 'required | exists:universidades,nombre',
 
     ], [
@@ -122,6 +126,9 @@ class CarreraController extends Controller
 
         'certificada.required' => 'La certificacion es requerida',
         'certificada.in' => 'La certificacion debe ser 1 (certificada) o 0 (no certificada)',
+
+        'logo.max' => 'El logo debe tener como maximo 999 caracteres',
+        'logo.url' => 'El logo debe ser una url valida',
 
         'universidad.required' => 'La universidad es requerida',
         'universidad.exists' => 'La universidad no existe',

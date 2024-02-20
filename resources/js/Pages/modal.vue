@@ -7,14 +7,14 @@
                 
                 <div class="header flex justify-between">
                     <h1>Modificar </h1>
-                    <h1>{{ infoEdit.nombre }}</h1>
+                    <h1>{{ infoEdit.info.nombre }}</h1>
                 </div>
                 
                 <div class="inputs flex flex-col gap-4">
-                    <div v-for="(value, key) in infoEdit" :key="key" class="input-group">
+                    <div v-for="(value, key) in infoEdit.info" :key="key" class="input-group">
                         <input
                             v-if="key !== 'id'"
-                            v-model="infoEdit[key]"
+                            v-model="infoEdit.info[key]"
                             required=""
                             type="text"
                             name="text"
@@ -26,7 +26,7 @@
                 </div>
                 <div class="buttons flex justify-end gap-2">
                     <div 
-                    v-if="nivel === 5"
+                    v-if="nivel === '5'"
                     class="addProfe flex justify-center">
                         <PrimaryButton @click="showModalProfesor()">
                             Agregar Profesor
@@ -34,9 +34,9 @@
                     </div>
 
                     <div 
-                    v-if="nivel === 4"
+                    v-if="nivel === '4'"
                     class="addProfe flex justify-center">
-                        <PrimaryButton @click="showModalProfesor()">
+                        <PrimaryButton @click="showModalMateria()">
                             Agregar Materia
                         </PrimaryButton>
                     </div>
@@ -45,7 +45,7 @@
                         <alertSuccesVue v-if="showSucces" :message="messAlert" />
                         <alertAdvertencia v-if="showAdvertencia" :message="messAlert" />
                     </div>
-                    <PrimaryButton @click="$emit('close')">
+                    <PrimaryButton @click="redirectToMain()">
                         Cerrar
                     </PrimaryButton>
                     <PrimaryButton @click="edit()">
@@ -60,15 +60,22 @@
                     <div class="intra-cont">
                         <div class="inputs flex gap-4">
                             <div class="input-group">
-                                <input
+                                <label class="user-label">Nombre:</label>
+                                <select v-model="nombreProfesor">
+                                    <option value="" disabled selected>Seleccionar profesor</option>
+                                    <option v-for="profesor in profesores" :key="profesor.id" :value="profesor.nombre">
+                                        {{ profesor.nombre }}
+                                    </option>
+                                </select>
+                                <!-- <input
                                     v-model="nombre"
                                     required=""
                                     type="text"
                                     name="text"
                                     autocomplete="off"
                                     class="input"
-                                >
-                                <label class="user-label">Nombre:</label>
+                                > -->
+                                
                             </div>
                             <div class="input-group">
                                 <input
@@ -90,20 +97,26 @@
                 
 
                 <div
-                v-if="showFormAddProfesor"
+                v-if="showFormAddMateria"
                  class="addProfesor">
                     <div class="intra-cont">
                         <div class="inputs flex gap-4">
                             <div class="input-group">
-                                <input
+                                <label class="user-label">Nombre:</label>
+
+                                <select name="" id=""
+                                v-model="nombreMateria">
+                                    <option value="" disabled selected>Selecciona una materia</option>
+                                    <option v-for="materia in materias" :key="materia.id" :value="materia.nombre">{{ materia.nombre }}</option>
+                                </select>
+                                <!-- <input
                                     v-model="nombreMateria"
                                     required=""
                                     type="text"
                                     name="text"
                                     autocomplete="off"
                                     class="input"
-                                >
-                                <label class="user-label">Nombre:</label>
+                                > -->
                             </div>
                             <div class="input-group">
                                 <input
@@ -117,7 +130,7 @@
                                 <label class="user-label">Codigo:</label>
                             </div>
                             <PrimaryButton @click="RequestAddMateria()">
-                                Añadir profesor
+                                Añadir materia
                             </PrimaryButton>
                         </div>        
                     </div>
@@ -128,10 +141,10 @@
 </template>
   
 <script>
-import PrimaryButton from '../PrimaryButton.vue'
-import alertErrorVue from './alertError.vue';
-import alertSuccesVue from './alertSuccess.vue';
-import alertAdvertencia from './alertAdvertencia.vue';
+import PrimaryButton from '../Components/PrimaryButton.vue'
+import alertErrorVue from '../Components/Modals/alertError.vue';
+import alertSuccesVue from '../Components/Modals/alertSuccess.vue';
+import alertAdvertencia from '../Components/Modals/alertAdvertencia.vue';
 
 export default {
     components: {
@@ -157,21 +170,30 @@ export default {
             showSucces: false,
             showAdvertencia: false,
             showFormAddProfesor: false,
+            showFormAddMateria: false,
             nombre: "",
             matricula: "",
             nombreMateria: "",
             codigoMateria:"",
+            profesores: [],
+            materias: [],
+            nombreProfesor: "",
         }
     },
     methods: {
-        showModalProfesor() {
+        async showModalProfesor() {
+            await this.getAllProfesores()
             this.showFormAddProfesor = !this.showFormAddProfesor
+        },
+        async showModalMateria() {
+            await this.getAllMaterias()
+            this.showFormAddMateria = !this.showFormAddMateria
         },
         async RequestAddProfesor() {
             this.ObjectAddProfesor = {
-                nombre: this.nombre,
+                nombre: this.nombreProfesor,
                 matricula: this.matricula,
-                id_alumno: this.infoEdit.id
+                id_alumno: this.infoEdit.info.id
             }
             try {
                 const response = await axios.post(route('Alumno.agregarProfesor', this.ObjectAddProfesor))
@@ -186,7 +208,7 @@ export default {
             this.ObjectAddMateria = {
                 nombre: this.nombreMateria,
                 codigo: this.codigoMateria,
-                id_profesor: this.infoEdit.id
+                id_profesor: this.infoEdit.info.id
             }
             try {
                 const response = await axios.post(route('Profesor.agregarMateria', this.ObjectAddMateria))
@@ -197,36 +219,42 @@ export default {
             }
         },
         async edit() {
+            console.log(this.infoEdit.info)
             try {
                 switch (this.nivel) {
-                case 1:
-                    const responseUniversidad = await axios.put(route('Universidad.updateUniversidad', this.infoEdit))
-                    this.showMessage(responseUniversidad.data.message, 'success')
-                    this.$emit('reload', { nivel: this.nivel, id: this.infoEdit.id})
+                case '1':
+                    const responseUniversidad = await axios.put(route('Universidad.updateUniversidad', this.infoEdit.info));
+                    if(responseUniversidad.status === 200){
+                        this.showMessageWithRedirect(responseUniversidad.data.message, 'success')
+                    }
                     break;
-                case 2:
-                    const responseCarrera = await axios.put(route('Carrera.updateCarrera', this.infoEdit))
-                    this.showMessage(responseCarrera.data.message, 'success')
-                    this.$emit('reload', {nivel: 2, id: this.infoEdit.id})
+                case '2':
+                    const responseCarrera = await axios.put(route('Carrera.updateCarrera', this.infoEdit.info))
+                    if(responseCarrera.status === 200){
+                        this.showMessageWithRedirect(responseCarrera.data.message, 'success')
+                    }
                     break;
-                case 3:
-                    const responseMateria = await axios.put(route('Materia.updateMateria', this.infoEdit))
-                    this.showMessage(responseMateria.data.message, 'success')
-                    this.$emit('reload', {nivel: 3, id: this.infoEdit.id})
+                case '3':
+                    const responseMateria = await axios.put(route('Materia.updateMateria', this.infoEdit.info))
+                    if(responseMateria.status === 200){
+                        this.showMessageWithRedirect(responseMateria.data.message, 'success')
+                    }
                  break;
-                case 4:
-                    const responseProfesor = await axios.put(route('Profesor.updateProfesor', this.infoEdit))
-                    this.showMessage(responseProfesor.data.message, 'success')
-                    this.$emit('reload', {nivel: 4, id: this.infoEdit.id})
+                case '4':
+                    const responseProfesor = await axios.put(route('Profesor.updateProfesor', this.infoEdit.info))
+                    if(responseProfesor.status === 200){
+                        this.showMessageWithRedirect(responseProfesor.data.message, 'success')
+                    }
                     break;
-                case 5:
-                    const responseAlumno = await axios.put(route('Alumno.updateAlumno', this.infoEdit))
-                    this.showMessage(responseAlumno.data.message, 'success')
-                    this.$emit('reload', {nivel: 5, id: this.infoEdit.id})
+                case '5':
+                    const responseAlumno = await axios.put(route('Alumno.updateAlumno', this.infoEdit.info))
+                    if(responseAlumno.status === 200){
+                        this.showMessageWithRedirect(responseAlumno.data.message, 'success')
+                    }
                     break;
                 }
             } catch (error) {
-                this.showMessage(error.response.data.message, 'error')
+                this.showMessage(error.response.data.message, 'error');
             }
         },
         showMessage(text, type) {
@@ -242,9 +270,38 @@ export default {
                     this.showSucces= false
                 }, 3000)
             } 
-        }
-    },
+        },
+        showMessageWithRedirect(message, type){
+            this.showMessage(message, type)
+            setTimeout(() => {
+                this.redirectToMain()
+            }, 1000)
+        },
+        async redirectToMain(){
+            this.$inertia.visit(route('dashboard'))
+        },
+        async getAllProfesores(){
+            try {
+                const response = await axios.get(route('Profesor.index'))
+                this.profesores = response.data
+                console.log(this.profesores)
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async getAllMaterias(){
+            try {
+                const response = await axios.get(route('Materia.index'))
+                this.materias = response.data
+                console.log(this.materias)
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+    }
 };
+
 </script>
   
 <style scoped>

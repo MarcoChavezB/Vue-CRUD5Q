@@ -8,16 +8,26 @@ use Illuminate\Http\Request;
 
 class MateriaController extends Controller
 {
+    public function index(){
+        $materias = Materia::select('nombre', 'descripcion', 'especialidad', 'creditos', 'horas', 'codigo','id')
+        ->where('is_disabled', false) 
+        ->get();
+
+        return response()->json($materias);
+    }
+
     public function getMaterias($id){
         $materia = Materia::select('nombre', 'descripcion', 'especialidad', 'creditos', 'horas', 'codigo','id')
         ->where('carrera_id', $id)
         ->where('is_disabled', false) 
         ->get();
+
         return response()->json($materia);
     }
 
     public function getMateria($id){
         $materia = Materia::select('id','nombre', 'descripcion', 'especialidad', 'horas', 'creditos', 'codigo')->find($id);
+
         return response()->json($materia);
     }
 
@@ -84,7 +94,7 @@ class MateriaController extends Controller
         $materia->creditos = $data['creditos'] ?? $materia->creditos;
         $materia->save();
 
-        return response()->json(['message' => 'Materia actualizada correctamente']);
+        return response()->json(['message' => 'Materia actualizada correctamente'], 200);
     }
 
     // materias y logramos hacer eso 
@@ -94,7 +104,7 @@ class MateriaController extends Controller
         $this->validate($request, [
             'nombre' => 'required | min:3 | max:100 | unique:materias,nombre',
             'carrera' => 'required | exists:carreras,nombre',
-            'codigo' => 'required | min:3 | max:100 | unique:materias,codigo',
+            'codigo' => 'required | min:3 | max:10 | unique:materias,codigo',
             'especialidad' => 'required | min:3 | max:100 | in:programacion,diseño,redes,base de datos',
             'descripcion' => 'required | min:3 | max:100',
             'creditos' => 'required | integer | between:100,500',
@@ -112,7 +122,7 @@ class MateriaController extends Controller
             
             'codigo.required' => 'El codigo es requerido',
             'codigo.min' => 'El codigo debe tener al menos 3 caracteres',
-            'codigo.max' => 'El codigo debe tener como maximo 100 caracteres',
+            'codigo.max' => 'El codigo debe tener como maximo 10 caracteres',
             'codigo.unique' => 'El codigo ya esta en uso',
 
             'especialidad.required' => 'La especialidad es requerida',

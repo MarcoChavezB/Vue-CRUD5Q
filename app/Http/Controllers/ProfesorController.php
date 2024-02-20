@@ -9,6 +9,16 @@ use Illuminate\Http\Request;
 
 class ProfesorController extends Controller
 {
+
+    public function index(){
+        $profesores = Profesor::select('foto', 'nombre', 'apellido', 'email', 'telefono', 'direccion', 'campo', 'matricula', 'id')
+            ->where('is_disabled', false)
+            ->get();
+
+
+        return response()->json($profesores);
+    }
+    
     public function getProfesores($id){
         $materia = Materia::with(['profesores' => function ($query) {
             $query->select('foto', 'nombre', 'apellido', 'email', 'telefono', 'direccion', 'campo', 'matricula', 'profesores.id')
@@ -16,7 +26,7 @@ class ProfesorController extends Controller
                 ->with(['materias' => function ($innerQuery) {
                     $innerQuery->select('nombre');
                 }]);
-        }])->find($id);        
+        }])->find($id);   
     
         $profesores = $materia->profesores;
         return response()->json($profesores);
@@ -35,6 +45,7 @@ class ProfesorController extends Controller
         if (!$profesor) {
             return response()->json(['message' => 'Profesor no encontrado'], 404);
         }
+
         $profesorMateria = $profesor->profesorMateria; 
         $materiaId = $profesorMateria ? $profesorMateria->materia_id : null;
         $profesor->is_disabled = true;
@@ -49,7 +60,7 @@ class ProfesorController extends Controller
             'nombre'    => 'min:3 | max:100 | nullable',
             'apellido'  => 'min:3 | max:100 | nullable',
             'email'     => 'email|nullable|unique:profesores,email,' . $data['id'],
-            'telefono'  => 'min:9|max:13|nullable|unique:profesores,telefono,' . $data['id'],
+            'telefono' => 'required|min:9|max:13|regex:/^[0-9]+$/|nullable|unique:profesores,telefono,' . $data['id'],
             'direccion' => 'min:3|max:100|nullable',
             'campo'     => 'in:programacion,diseño,redes,base de datos|nullable',
             'matricula' => 'min:5|max:100|nullable|unique:profesores,matricula,' . $data['id'],
@@ -68,6 +79,7 @@ class ProfesorController extends Controller
             'telefono.min'      => 'El telefono debe tener al menos 9 caracteres',
             'telefono.max'      => 'El telefono debe tener como maximo 13 caracteres',
             'telefono.unique'   => 'El telefono ya esta en uso',
+            'telefono.regex'    => 'El telefono no es valido',
 
             'direccion.min'     => 'La direccion debe tener al menos 3 caracteres',
             'direccion.max'     => 'La direccion debe tener como maximo 100 caracteres',
@@ -93,17 +105,18 @@ class ProfesorController extends Controller
         $profesor->campo = $data['campo'] ?? $profesor->campo;
         $profesor->save();
 
-        return response()->json(['message' => 'Profesor actualizado correctamente']);
+        return response()->json(['message' => 'Profesor actualizado correctamente'], 200);
     }
 
-    public function createProfesor(Request $request){
+    public function store(Request $request){
 
         $this->validate($request, [
             'nombre' => 'required | min:3 | max:100',
             'apellido' => 'required | min:3 | max:100',
             'email' => 'required | email | unique:profesores,email',
-            'telefono' => 'required | min:9 | max:13 | unique:profesores,telefono',
+            'telefono' => 'required|unique:profesores,telefono|integer|regex:/^[0-9]{9,13}$/',
             'direccion' => 'required | min:3 | max:100',
+            'foto' => 'nullable | url | max:999',
             'matricula' => 'required | min:5 | max:100',
             'materia' => 'required | exists:materias,nombre',
             'campo' => 'required | in:programacion,diseño,redes,base de datos', 
@@ -127,6 +140,8 @@ class ProfesorController extends Controller
             'telefono.min' => 'El telefono debe tener al menos 9 caracteres',
             'telefono.max' => 'El telefono debe tener como maximo 13 caracteres',
             'telefono.unique' => 'El telefono ya esta en uso',
+            'telefono.integer' => 'El telefono debe ser un numero',
+            'telefono.regex' => 'El telefono no es valido',
 
             'direccion.required' => 'La direccion es requerida',
             'direccion.min' => 'La direccion debe tener al menos 3 caracteres',
@@ -145,6 +160,9 @@ class ProfesorController extends Controller
 
             'campo.required' => 'El campo es requerido',
             'campo.in' => 'El campo debe ser programacion, diseño, redes o base de datos',
+
+            'foto.max' => 'La foto debe tener como maximo 999 caracteres',
+            'foto.url' => 'La foto no es valida, debe ser una url valida',
 
         ]);
 
