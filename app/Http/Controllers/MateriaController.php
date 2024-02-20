@@ -17,7 +17,7 @@ class MateriaController extends Controller
     }
 
     public function getMateria($id){
-        $materia = Materia::slect('id','nombre', 'descripcion', 'especialidad', 'horas', 'creditos', 'codigo')->find($id);
+        $materia = Materia::select('id','nombre', 'descripcion', 'especialidad', 'horas', 'creditos', 'codigo')->find($id);
         return response()->json($materia);
     }
 
@@ -66,6 +66,17 @@ class MateriaController extends Controller
         ]);
 
         $materia = Materia::find($data['id']);
+
+        // no se encontro
+        if (!$materia) {
+            return response()->json(['message' => 'Materia no encontrada'], 404);
+        }
+
+        // no se realizarion cambios
+        if($materia->nombre == $data['nombre'] && $materia->descripcion == $data['descripcion'] && $materia->especialidad == $data['especialidad'] && $materia->horas == $data['horas'] && $materia->creditos == $data['creditos'] && $materia->codigo == $data['codigo']){
+            return response()->json(['message' => 'No se realizaron cambios']);
+        }
+
         $materia->nombre = $data['nombre'] ?? $materia->nombre;
         $materia->descripcion = $data['descripcion'] ?? $materia->descripcion;
         $materia->especialidad = $data['especialidad'] ?? $materia->especialidad;
@@ -75,6 +86,8 @@ class MateriaController extends Controller
 
         return response()->json(['message' => 'Materia actualizada correctamente']);
     }
+
+    // materias y logramos hacer eso 
 
     public function createMateria(Request $request){
 
@@ -135,7 +148,7 @@ class MateriaController extends Controller
 
             $nuevaMateria->save();
 
-            return response()->json(['message' => 'Materia insertada correctamente']);
+            return response()->json(['message' => 'Materia insertada correctamente', 'id' => $carrera->id]);
         } else {
             return response()->json(['message' => 'La carrera no existe']);
         }

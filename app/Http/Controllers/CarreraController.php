@@ -64,6 +64,16 @@ class CarreraController extends Controller
         ]);
 
         $carrera = Carrera::find($data['id']);
+
+        if (!$carrera) {
+            return response()->json(['message' => 'Carrera no encontrada'], 404);
+        }
+
+        if ($carrera->nombre == $data['nombre'] && $carrera->descripcion == $data['descripcion'] && $carrera->duracion == $data['duracion'] && $carrera->creditos == $data['creditos'] && $carrera->certificada == $data['certificada'] && $carrera->logo == $data['logo']) {
+            return response()->json(['message' => 'No se realizo ningun cambio']);
+        }
+
+
         $carrera->nombre = $data['nombre'] ?? $carrera->nombre;
         $carrera->descripcion = $data['descripcion'] ?? $carrera->descripcion;
         $carrera->duracion = $data['duracion'] ?? $carrera->duracion;
@@ -83,17 +93,18 @@ class CarreraController extends Controller
     $universidad = Universidad::where('nombre', $nombreUniversidad)->first();
 
     $this->validate($request, [
-        'nombre' => 'required | min:3 | max:100',
+        'nombre' => 'required | min:3 | max:100 | unique:carreras,nombre',
         'descripcion' => 'required | min:3 | max:100',
         'creditos' => 'required|integer|between:100,500',
         'duracion' => 'required|integer|between:30,50',
-        'certificada' => 'required | between:0,1',
+        'certificada' => 'required | in:0,1',
         'universidad' => 'required | exists:universidades,nombre',
 
     ], [
         'nombre.required' => 'El nombre es requerido',
         'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
         'nombre.max' => 'El nombre debe tener como maximo 100 caracteres',
+        'nombre.unique' => 'La carrera ya existe',
 
         'descripcion.required' => 'La descripcion es requerida',
         'descripcion.min' => 'La descripcion debe tener al menos 3 caracteres',
@@ -107,9 +118,10 @@ class CarreraController extends Controller
         'duracion.integer' => 'La duracion debe ser un numero entero',
         'duracion.min' => 'La duracion debe ser mayor a 30',
         'duracion.max' => 'La duracion debe ser menor a 50',
+        'duracion.between' => 'La duracion debe ser entre 30 y 50',
 
         'certificada.required' => 'La certificacion es requerida',
-        'certificada.in' => 'La certificacion debe ser 1 o 0',
+        'certificada.in' => 'La certificacion debe ser 1 (certificada) o 0 (no certificada)',
 
         'universidad.required' => 'La universidad es requerida',
         'universidad.exists' => 'La universidad no existe',
@@ -128,7 +140,7 @@ class CarreraController extends Controller
 
         $nuevaCarrera->save();
 
-        return response()->json(['message' => 'Carrera insertada correctamente']);
+        return response()->json(['message' => 'Carrera insertada correctamente', 'id' => $universidad->id]);
     } else {
         return response()->json(['message' => 'La universidad no existe']);
     }

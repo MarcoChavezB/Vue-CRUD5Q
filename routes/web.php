@@ -24,21 +24,29 @@ use Inertia\Inertia;
 //     ->name('User.index');
 
 Route::get('/returnForm', [FormController::class, 'returnForm'])
-    ->name('Form.returnForm');
+    ->name('Form.returnForm')
+    ->middleware(['auth', 'verified']);
 
+    Route::get('/', [FormController::class, 'returnIndex'])
+    ->name('Form.returnIndex')
+    ->middleware(['auth', 'verified']);;
 
 Route::inertia('/returnTable', 'IndexTable')
-    ->name('Universidad.returnTable');
-
+    ->name('Universidad.returnTable')
+    ->middleware(['auth', 'verified']);;
 
 Route::inertia('/returnAddForm', 'AddForm')
-        ->name('Universidad.returnAddForm');
-
-
+        ->name('Universidad.returnAddForm')
+        ->middleware(['auth', 'verified']);;
 
 Route::post('/renderModal', function (){
     return Inertia::render('Modals/modal');
 })->name('Modal.renderModal');
+
+
+Route::post('/form/update', [FormController::class, 'update'])
+    ->name('Form.update')
+    ->middleware(['auth', 'verified']);
 
 
     

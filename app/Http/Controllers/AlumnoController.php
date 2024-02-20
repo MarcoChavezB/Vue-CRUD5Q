@@ -22,13 +22,15 @@ class AlumnoController extends Controller
 
     public function deleteAlumno($id){
         $alumno = Alumno::find($id);
-
+    
         if (!$alumno) {
             return response()->json(['message' => 'Alumno no encontrado'], 404);
         }
+        $profesorAlumno = $alumno->profesorAlumno;
+        $profesorId = $profesorAlumno ? $profesorAlumno->profesor_id : null;
         $alumno->is_disabled = true;
         $alumno->save();
-        return response()->json(['message' => 'Alumno eliminado correctamente']);
+        return response()->json(['message' => 'Alumno eliminado correctamente', 'id' => $profesorId]);
     }
     
 
@@ -73,6 +75,13 @@ class AlumnoController extends Controller
         ]);      
 
         $alumno = Alumno::find($data['id']);
+
+        if (!$alumno) {
+            return response()->json(['message' => 'Alumno no encontrado'], 404);
+        }
+        
+        if($alumno->nombre == $data['nombre'])
+
         $alumno->nombre = $data['nombre'] ?? $alumno->nombre;
         $alumno->apellido = $data['apellido'] ?? $alumno->apellido;
         $alumno->email = $data['email'] ?? $alumno->email;
@@ -151,7 +160,9 @@ class AlumnoController extends Controller
 
             $alumnoProfesor->save();
 
-            return response()->json(['message' => 'Alumno insertado correctamente']);
+            $profesorId = $profesor->id;
+
+            return response()->json(['message' => 'Alumno insertado correctamente', 'id' => $profesorId]);
         } else {
             return response()->json(['message' => 'La matricula no esta asociada a ningun profesor o no coincide con el nombre del profesor'], 404);
         }

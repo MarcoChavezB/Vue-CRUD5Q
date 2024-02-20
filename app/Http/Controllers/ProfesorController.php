@@ -31,54 +31,55 @@ class ProfesorController extends Controller
 
     public function deleteProfesor($id){
         $profesor = Profesor::find($id);
-
+    
         if (!$profesor) {
             return response()->json(['message' => 'Profesor no encontrado'], 404);
         }
-
+        $profesorMateria = $profesor->profesorMateria; 
+        $materiaId = $profesorMateria ? $profesorMateria->materia_id : null;
         $profesor->is_disabled = true;
         $profesor->save();
-        return response()->json(['message' => 'Profesor eliminado correctamente']);
+        return response()->json(['message' => 'Profesor eliminado correctamente', 'id' => $materiaId]);
     }
 
     public function updateProfesor(Request $request){
         $data = $request->all();
 
         $this->validate($request, [
-            'nombre' => 'min:3 | max:100 | nullable',
-            'apellido' => 'min:3 | max:100 | nullable',
-            'email' => 'email|nullable|unique:profesores,email,' . $data['id'],
-            'telefono' => 'min:9|max:13|nullable|unique:profesores,telefono,' . $data['id'],
+            'nombre'    => 'min:3 | max:100 | nullable',
+            'apellido'  => 'min:3 | max:100 | nullable',
+            'email'     => 'email|nullable|unique:profesores,email,' . $data['id'],
+            'telefono'  => 'min:9|max:13|nullable|unique:profesores,telefono,' . $data['id'],
             'direccion' => 'min:3|max:100|nullable',
-            'campo' => 'in:programacion,diseño,redes,base de datos|nullable',
+            'campo'     => 'in:programacion,diseño,redes,base de datos|nullable',
             'matricula' => 'min:5|max:100|nullable|unique:profesores,matricula,' . $data['id'],
-            'foto' => 'max:999 | nullable | url'
+            'foto'      => 'max:999 | nullable | url'
         ], [
 
-            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
-            'nombre.max' => 'El nombre debe tener como maximo 100 caracteres',
+            'nombre.min'        => 'El nombre debe tener al menos 3 caracteres',
+            'nombre.max'        => 'El nombre debe tener como maximo 100 caracteres',
 
-            'apellido.min' => 'El apellido debe tener al menos 3 caracteres',
-            'apellido.max' => 'El apellido debe tener como maximo 100 caracteres',
+            'apellido.min'      => 'El apellido debe tener al menos 3 caracteres',
+            'apellido.max'      => 'El apellido debe tener como maximo 100 caracteres',
 
-            'email.email' => 'El email no es valido',
-            'email.unique' => 'El email ya esta en uso',
+            'email.email'       => 'El email no es valido',
+            'email.unique'      => 'El email ya esta en uso',
 
-            'telefono.min' => 'El telefono debe tener al menos 9 caracteres',
-            'telefono.max' => 'El telefono debe tener como maximo 13 caracteres',
-            'telefono.unique' => 'El telefono ya esta en uso',
+            'telefono.min'      => 'El telefono debe tener al menos 9 caracteres',
+            'telefono.max'      => 'El telefono debe tener como maximo 13 caracteres',
+            'telefono.unique'   => 'El telefono ya esta en uso',
 
-            'direccion.min' => 'La direccion debe tener al menos 3 caracteres',
-            'direccion.max' => 'La direccion debe tener como maximo 100 caracteres',
+            'direccion.min'     => 'La direccion debe tener al menos 3 caracteres',
+            'direccion.max'     => 'La direccion debe tener como maximo 100 caracteres',
 
-            'campo.in' => 'El campo debe ser programacion, diseño, redes o base de datos',
+            'campo.in'          => 'El campo debe ser programacion, diseño, redes o base de datos',
 
-            'matricula.min' => 'La matricula debe tener al menos 3 caracteres',
-            'matricula.max' => 'La matricula debe tener como maximo 100 caracteres',
-            'matricula.unique' => 'La matricula ya esta en uso',
+            'matricula.min'     => 'La matricula debe tener al menos 3 caracteres',
+            'matricula.max'     => 'La matricula debe tener como maximo 100 caracteres',
+            'matricula.unique'  => 'La matricula ya esta en uso',
 
-            'foto.max' => 'La foto debe tener como maximo 999 caracteres',
-            'foto.url' => 'La foto no es valida, debe ser una url valida',
+            'foto.max'          => 'La foto debe tener como maximo 999 caracteres',
+            'foto.url'          => 'La foto no es valida, debe ser una url valida',
 
         ]);
 
@@ -162,14 +163,16 @@ class ProfesorController extends Controller
             $nuevoProfesor->foto = $request->input('foto');
             
             $nuevoProfesor->save();
-    
             
             $materiaProfesores = new MateriaProfesor();
             $materiaProfesores->materia_id = $materia->id;
             $materiaProfesores->profesor_id = $nuevoProfesor->id;
             $materiaProfesores->save();
+
+            $materiaId = $materia->id;
     
-            return response()->json(['message' => 'Profesor insertado correctamente']);
+            return response()->json(['message' => 'Profesor insertado correctamente', 'id' => $materiaId]);
+
         } else {
             return response()->json(['message' => 'La materia no existe']);
         }
@@ -182,6 +185,7 @@ public function agregarMateria(Request $request)
         'codigo' => 'required|max:100',
         'id_profesor' => 'required|exists:profesores,id|max:100',
     ], [
+  
         'nombre.required' => 'El nombre de la materia es requerido',
         'nombre.exists' => 'La materia no existe',
         'nombre.max' => 'El nombre de la materia debe tener como máximo 100 caracteres',
@@ -192,6 +196,7 @@ public function agregarMateria(Request $request)
         'id_profesor.required' => 'El ID del profesor es requerido',
         'id_profesor.exists' => 'El profesor no existe',
         'id_profesor.max' => 'El ID del profesor debe tener como máximo 100 caracteres',
+  
     ]);
 
     $nombreMateria = $request->input('nombre');
@@ -205,7 +210,6 @@ public function agregarMateria(Request $request)
     if ($materia) {
         $profesor = Profesor::find($idProfesor);
 
-        // Elimina esta verificación si deseas permitir duplicados
         if (!$profesor->materias->contains($materia->id)) {
             $profesor->materias()->attach($materia->id);
             return response()->json(['message' => 'Materia asignada correctamente al profesor']);

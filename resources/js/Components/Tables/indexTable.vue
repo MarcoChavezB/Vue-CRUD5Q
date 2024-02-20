@@ -63,6 +63,7 @@
 // crear modales con inertial y mandarle el objeto que se manda por propiedad todo por inertial 
 // -- Universidades - carreras - materias - profesores - alumnos
 import PrimaryButton from '../PrimaryButton.vue'
+import alertAdvertencia from '../Modals/alertAdvertencia.vue'
 import rowTable from './rowTable.vue'
 import headTable from './headTable.vue'
 import ModalCompModify from '../Modals/modal.vue'
@@ -78,7 +79,8 @@ export default {
         ModalCompModify,
         Add,
         alertErrorVue,
-        alertSuccesVue
+        alertSuccesVue,
+        alertAdvertencia
     },
     data() {
         return {
@@ -92,6 +94,7 @@ export default {
             showOptions: false,
             showError: false,
             showSucces: false,
+            showAdvertencia: false,
         }
     },
 
@@ -106,13 +109,20 @@ export default {
                 setTimeout(() => {
                     this.showError = false
                 }, 3000)
-            } else {
+            } else if (type === 'succes') {
                 this.showSucces = true
                 setTimeout(() => {
                     this.showSucces= false
                 }, 3000)
+            }else if (type === 'advertencia') {
+                this.showAdvertencia = true
+                setTimeout(() => {
+                    this.showAdvertencia= false
+                }, 3000)
             }
         },
+
+
         // async renderModal(){
         //     try {
         //         const response = await axios.post(route('Modal.renderModal'))
@@ -121,6 +131,7 @@ export default {
         //         this.showMessage(error, 'error')
         //     }
         // },
+        
         async handleOption({ id, action }) {
             if (action && action.action === 'edit') {
                 switch (this.level) {
@@ -151,30 +162,32 @@ export default {
                     switch (this.level) {
                     case 1:
                         const responseUniversidad = await axios.delete(route('Universidad.deleteUniversidad', { id: id }))
-                        this.showMessage(responseUniversidad.data.message, 'success')
+                        this.showMessage(responseUniversidad.data.message, 'succes')
+                        console.log(id)
                         this.reloadPage({ nivel: 1, id: id })
                         break;
                     case 2:
-                    console.log(id)
+                        console.log(id)
                         const responseCarrera = await axios.delete(route('Carrera.deleteCarrera', { id: id }))
-                        this.showMessage(responseCarrera.data.message, 'success')
+                        this.showMessage(responseCarrera.data.message, 'succes')
                         this.reloadPage({ nivel: 2, id: id })
                         break;
                     case 3:
-                    console.log(id)
+                        console.log(id)
                         const responseMateria = await axios.delete(route('Materia.deleteMateria', { id: id }))
-                        this.showMessage(responseMateria.data.message, 'success')
+                        this.showMessage(responseMateria.data.message, 'succes')
                         this.reloadPage({ nivel: 3, id: id })
                         break;
                     case 4:
-                    
+                        console.log(id)
                         const responseProfesor = await axios.delete(route('Profesor.deleteProfesor', { id: id }))
-                        this.showMessage(responseProfesor.data.message, 'success')
+                        this.showMessage(responseProfesor.data.message, 'succes')
                         this.reloadPage({ nivel: 4, id: id })
                         break;
                     case 5:
+                        console.log(id)
                         const responseAlumno = await axios.delete(route('Alumno.deleteAlumno', { id: id }))
-                        this.showMessage(responseAlumno.data.message, 'success')
+                        this.showMessage(responseAlumno.data.message, 'succes')
                         this.reloadPage({ nivel: 5, id: id })
                         break;
                     }
@@ -192,6 +205,7 @@ export default {
                     break;
                 case 2:
                     this.getCarreraById(id)
+                    console.log(id)
                     break;
                 case 3:
                     this.getMateriasById(id)
@@ -266,6 +280,13 @@ export default {
                 console.error(error);
             }
         },
+
+
+        /* 
+            infoEdit para mandar la peticion con la informacion de la peticion
+            realizar una peticion con inertia para renderizar el modal modify con su informacion pasandola
+            por props
+        */
 
         async getUniversidadById(id) {
             try {

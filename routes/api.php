@@ -24,6 +24,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+
+
+
+
     Route::get('/getUniversidades', [UniversidadController::class, 'index'])
         ->name('Universidad.index');
 

@@ -89,26 +89,31 @@ export default {
                         const responseUniversidad = await axios.post(route('Universidad.createUniversidad', this.infoAdd))
                         this.showMessage(responseUniversidad.data.message, 'success')
                         this.$emit('reload', {nivel: 1, id: responseUniversidad.data.id})
+                        console.log(responseUniversidad)
                         break;
                     case 2:
                         const responseCarrera = await axios.post(route('Carrera.createCarrera', this.infoAdd))
                         this.showMessage(responseCarrera.data.message, 'success')
-                        this.$emit('reload', {nivel: 2})
+                        this.$emit('reload', {nivel: 2, id: responseCarrera.data.id})
+                        console.log(responseCarrera)
                         break;
                     case 3:
                         const responseMateria = await axios.post(route('Materia.createMateria', this.infoAdd))
                         this.showMessage(responseMateria.data.message, 'success')
-                        this.$emit('reload', {nivel: 3})
+                        this.$emit('reload', {nivel: 3, id: responseMateria.data.id})
                         break;
                     case 4:
                         const responseProfesor = await axios.post(route('Profesor.createProfesor', this.infoAdd))
                         this.showMessage(responseProfesor.data.message, 'success')
-                        this.$emit('reload', {nivel: 4})
+                        console.log(responseProfesor.data.id)
+                        this.$emit('reload', {nivel: 4, id: responseProfesor.data.id})
                         break;
                     case 5:
                         const responseAlumno = await axios.post(route('Alumno.createAlumno', this.infoAdd))
                         this.showMessage(responseAlumno.data.message, 'success')
-                        this.$emit('reload', {nivel: 5})
+                        this.$emit('reload', {nivel: 5, id: responseAlumno.data.id})
+                        console.log(responseAlumno)
+                        console.log(responseAlumno.data.id)
                         break;
                 }
             } catch (error) {

@@ -43,6 +43,7 @@
                     <div class="alerts">
                         <alertErrorVue v-if="showError" :message="messAlert" />
                         <alertSuccesVue v-if="showSucces" :message="messAlert" />
+                        <alertAdvertencia v-if="showAdvertencia" :message="messAlert" />
                     </div>
                     <PrimaryButton @click="$emit('close')">
                         Cerrar
@@ -53,7 +54,7 @@
                 </div>
 
                 <!-- v-if="showFormAddProfesor" -->
-                <div
+                <div 
                 v-if="showFormAddProfesor"
                  class="addProfesor">
                     <div class="intra-cont">
@@ -130,11 +131,14 @@
 import PrimaryButton from '../PrimaryButton.vue'
 import alertErrorVue from './alertError.vue';
 import alertSuccesVue from './alertSuccess.vue';
+import alertAdvertencia from './alertAdvertencia.vue';
+
 export default {
     components: {
         PrimaryButton,
         alertSuccesVue,
-        alertErrorVue
+        alertErrorVue,
+        alertAdvertencia
     },
     props: {
         infoEdit: {
@@ -151,6 +155,7 @@ export default {
             messAlert: "",
             showError: false,
             showSucces: false,
+            showAdvertencia: false,
             showFormAddProfesor: false,
             nombre: "",
             matricula: "",
@@ -231,12 +236,12 @@ export default {
                 setTimeout(() => {
                     this.showError = false
                 }, 3000)
-            } else {
+            } else if (type === 'success'){
                 this.showSucces = true
                 setTimeout(() => {
                     this.showSucces= false
                 }, 3000)
-            }
+            } 
         }
     },
 };

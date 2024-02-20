@@ -75,8 +75,17 @@ class UniversidadController extends Controller
             'logo.url' => 'El logo no es valido, debe ser una url valida',
         ]);
 
-
         $universidad = Universidad::find($data['id']);
+
+        if (!$universidad) {
+            return response()->json(['message' => 'Universidad no encontrada'], 404);
+        }
+
+        if ($universidad->nombre == $data['nombre'] && $universidad->telefono == $data['telefono'] && $universidad->direccion == $data['direccion'] && $universidad->email == $data['email'] && $universidad->web == $data['web'] && $universidad->logo == $data['logo']) {
+            return response()->json(['message' => 'No se realizo ningun cambio'], 304);
+        }
+
+
         $universidad->nombre = $data['nombre'] ?? $universidad->nombre;
         $universidad->telefono = $data['telefono'] ?? $universidad->telefono;
         $universidad->email = $data['email'] ?? $universidad->email;

@@ -12,4 +12,12 @@ class FormController extends Controller
         return Inertia::render('Add', ['campos' => $campos]);
 
     } 
+
+    public function returnIndex(){
+        return Inertia::render('Dashboard');
+    }
+
+    public function update(){
+        return Inertia::render('Dashboard');
+    }
 }

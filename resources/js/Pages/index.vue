@@ -17,6 +17,9 @@ export default {
     components: {
         CrudLayout,
         indexTable
+    },
+    mounted(){
+        this.$inertia.get('Form.returnIndex')
     }
 }
 </script>
