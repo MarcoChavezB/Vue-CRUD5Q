@@ -12,7 +12,7 @@ createInertiaApp({
   title: (title) => `${title} - ${appName}`,
   resolve: (name) => {
     if (name === 'IndexTable') {
-      return import('./Components/Tables/indexTable.vue');
+      
     } else {
       return resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue'));
     }
